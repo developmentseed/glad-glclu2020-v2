@@ -1,0 +1,26 @@
+project:
+  type: website
+
+website:
+  title: "titiler-pgstac showcase: GLAD Global Land Cover Land Use (GLCLU) 2020"
+  site-url: https://developmentseed.org/glad-glclu2020-v2
+  repo-url: https://github.com/developmentseed/glad-glclu2020-v2
+  repo-actions: [source]
+  page-navigation: true
+
+  page-footer:
+    left: "[developmentseeed.org](https://developmentseed.org)"
+    right: "This page is built with ❤️ and [Quarto](https://quarto.org/)."
+  navbar:
+    right:
+      - icon: github
+        href: https://github.com/developmentseed/glad-glclu2020-v2
+format:
+  html:
+    page-layout: full
+    theme: 
+      light: [flatly, styles.scss]
+      dark: [darkly, styles.scss]
+
+
+

@@ -1,0 +1,63 @@
+---
+date: 2024-12-17
+---
+
+```{python}
+# | echo: false
+# | label: map
+# | tags: [interactive]
+
+import json
+
+import httpx
+from folium import LayerControl, Map, TileLayer
+
+titiler_endpoint = "https://titiler-pgstac.maap-project.org"
+
+m = Map(location=(20, 0), zoom_start=2, tiles="openstreetmap")
+
+collection_id = "glad-glclu2020-v2"
+
+collection_info = httpx.get(
+    f"{titiler_endpoint}/collections/{collection_id}/info", timeout=None
+).json()
+
+tilejsons = {}
+for year in ["2000", "2005", "2010", "2020"]:
+    post_search = httpx.post(
+        f"{titiler_endpoint}/searches/register",
+        json={
+            "collections": [collection_id],
+            "datetime": f"{year}-01-01T00:00:00Z/{year}-12-31T23:59:59Z",
+        },
+    )
+    search_id = post_search.json()["id"]
+
+    tile_json_request = httpx.get(
+        f"{titiler_endpoint}/searches/{search_id}/WebMercatorQuad/tilejson.json",
+        params={
+            "assets": ["data"],
+            "colormap": json.dumps(
+                collection_info["search"]["metadata"]["defaults"][year]["colormap"]
+            ),
+        },
+        timeout=None,
+    )
+
+    tilejsons[year] = tile_json_request.json()
+
+for year, tilejson in tilejsons.items():
+    tile_layer = TileLayer(
+        tiles=f"{tilejson['tiles'][0]}",
+        opacity=1,
+        attr="GLAD",
+        name=year,
+        show=False,
+        overlay=True,
+    )
+    tile_layer.add_to(m)
+
+LayerControl(collapsed=False).add_to(m)
+m
+```
+The GLAD GLCLU2020 V2 dataset is a global 30 meter resolution land cover and land use product produced by the GLAD Laboratory at the University of Maryland. For more information check out the [dataset documentation](https://glad.umd.edu/dataset/GLCLUC2020).
